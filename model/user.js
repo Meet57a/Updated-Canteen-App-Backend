@@ -4,6 +4,10 @@ const db = require("../config/db");
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
+  ObjectId: {
+    type: Schema.Types.ObjectId,
+    auto: true,
+  },
   Fullname: {
     type: String,
     required: true,

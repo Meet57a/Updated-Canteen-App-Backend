@@ -42,7 +42,7 @@ class AuthService {
           .status(401)
           .json({ status: false, message: "Password is incorrect." });
       }
-      if (isCompare && (user.Role  == "isUser" || user.Role == "isVendor") ) {
+      if (isCompare && (user.Role == "isUser" || user.Role == "isVendor")) {
         const tokenData = {
           _id: user._id,
           Email: user.Email,
@@ -50,9 +50,14 @@ class AuthService {
           MobileNo: user.MobileNo,
           Role: user.Role,
         };
-        const token = jwt.sign(tokenData, "adfafafaf", {
-          expiresIn: "1h",
-        });
+        console.log(process.env.JWT_SECRET);
+        const token = jwt.sign(
+          tokenData,
+          process.env.JWT_SECRET || "adfafafaf",
+          {
+            expiresIn: "1h",
+          }
+        );
         return res
           .status(200)
           .json({ status: true, message: "Login successfully.", token: token });
