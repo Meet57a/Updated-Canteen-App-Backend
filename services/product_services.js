@@ -5,23 +5,7 @@ const S3 = require("../config/s3-config");
 const { PutObjectCommand } = require("@aws-sdk/client-s3");
 
 class ProductServices {
-  // static async checkVendor(token) {
-  //   try {
-  //     const check = jwt.verify(token, process.env.JWT_SECRET || "adfafafaf");
-  //     const decodedToken = jwt.decode(token);
-  //     const email = decodedToken["Email"];
-  //     const role = decodedToken["Role"];
-  //     if (check) {
-  //       console.log(email);
-  //       console.log(role);
-  //     }
-  //     return await UserModel.findOne({ Email: email });
-  //   } catch (error) {
-  //     if (error) {
-  //       res.send(false);
-  //     }
-  //   }
-  // }
+
 
   static async addProduct(
     ProductName,
@@ -29,19 +13,20 @@ class ProductServices {
     ProductDescription,
     ProductQuantity,
     ProductCategory,
+    TypeOfFood,
     ProductAdmin,
     res,
     image,
     mimeType
   ) {
     try {
-      
       const addIngProduct = ProductModel({
         ProductName,
         ProductPrice,
         ProductDescription,
         ProductQuantity,
         ProductCategory,
+        TypeOfFood,
         ProductAdmin,
       });
 

@@ -3,10 +3,18 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 class AuthService {
-  static async userCheck(Email) {
+  static async userCheck(Email, MobileNo) {
     try {
+      console.log(MobileNo);
       const user = await UserModel.findOne({ Email: Email });
-      return user;
+      const userNumber = await UserModel.findOne({ MobileNo: MobileNo });
+
+      if (user) {
+        return user;
+      } else if (userNumber) {
+        return userNumber;
+      }
+
     } catch (error) {
       console.log(error);
     }
@@ -14,10 +22,10 @@ class AuthService {
 
   static async registerUser(Fullname, MobileNo, Email, Password, Role, res) {
     try {
-      console.log(Password);
+      const mobileNo = "+91" + MobileNo;
       const createUser = new UserModel({
         Fullname,
-        MobileNo,
+        MobileNo: mobileNo,
         Email,
         Password,
         Role,

@@ -24,6 +24,11 @@ const productSchema = new Schema({
     type: String,
     required: true,
   },
+  TypeOfFood: {
+    type: String,
+    required: true,
+  },
+
   ProductAdmin: {
     type: String,
     required: true,
