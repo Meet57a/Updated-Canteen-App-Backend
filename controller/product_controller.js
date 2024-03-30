@@ -1,5 +1,6 @@
 const ProductServices = require("../services/product_services");
 const CheckVendor = require("../config/check_vendor");
+const ProductModel = require("../model/product_model");
 
 exports.addProductController = async (req, res) => {
   try {
@@ -17,14 +18,15 @@ exports.addProductController = async (req, res) => {
     } = req.body;
 
 
-    if(req.body == null){
-      return res.status(400).json({message: "Invalid body"})
+    console.log(req.body);
+    if (req.body == null) {
+      return res.status(400).json({ message: "Invalid body" })
     }
 
-    
+
     const vendor = await CheckVendor.checkVendor(token);
 
-  
+
 
     if (vendor && vendor.Role === "isVendor") {
       let passProduct = await ProductServices.addProduct(
@@ -42,8 +44,18 @@ exports.addProductController = async (req, res) => {
     } else {
       console.log("Unauthorized");
     }
-    
+
   } catch (error) {
     console.log(error);
   }
 };
+
+
+exports.getProducts = async (req, res) => {
+  try {
+    const products = await ProductModel.find({});
+    return res.status(200).json({ status: true, data: products })
+  } catch (error) {
+    console.log(error);
+  }
+}

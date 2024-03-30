@@ -6,8 +6,9 @@ class AuthService {
   static async userCheck(Email, MobileNo) {
     try {
       console.log(MobileNo);
+      const mobileNo = "+91" + MobileNo;
       const user = await UserModel.findOne({ Email: Email });
-      const userNumber = await UserModel.findOne({ MobileNo: MobileNo });
+      const userNumber = await UserModel.findOne({ MobileNo: mobileNo });
 
       if (user) {
         return user;
