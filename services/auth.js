@@ -61,11 +61,11 @@ class AuthService {
         };
         console.log(process.env.JWT_SECRET);
         const token = jwt.sign(
+
           tokenData,
+
           process.env.JWT_SECRET || "adfafafaf",
-          {
-            expiresIn: "1h",
-          }
+
         );
         return res
           .status(200)

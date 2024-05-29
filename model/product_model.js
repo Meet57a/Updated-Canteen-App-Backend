@@ -4,6 +4,10 @@ const db = require("../config/db");
 const { Schema } = mongoose;
 
 const productSchema = new Schema({
+  ObjectId: {
+    type: Schema.Types.ObjectId,
+    auto: true,
+  },
   ProductName: {
     type: String,
     required: true,
@@ -37,6 +41,10 @@ const productSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  updatedAt:{
+    type: Date,
+    default: Date.now,
+  }
 });
 
 const ProductModel = db.model("Product", productSchema);
