@@ -4,7 +4,7 @@ const db = require("../config/db");
 const { Schema } = mongoose;
 
 const productSchema = new Schema({
-  ObjectId: {
+  ProductId: {
     type: Schema.Types.ObjectId,
     auto: true,
   },
@@ -13,10 +13,6 @@ const productSchema = new Schema({
     required: true,
   },
   ProductPrice: {
-    type: Number,
-    required: true,
-  },
-  ProductDescription: {
     type: String,
     required: true,
   },
@@ -28,11 +24,34 @@ const productSchema = new Schema({
     type: String,
     required: true,
   },
-  TypeOfFood: {
+  ProductSubCategory: {
     type: String,
     required: true,
   },
-
+  PriorityOfFood: {
+    type: String,
+    required: true,
+  },
+  ProductDescription: {
+    type: String,
+    required: true,
+  },
+  ProductStock: {
+    type: String,
+    required: true,
+  },
+  StatusAvailable: {
+    type: String,
+    required: true,
+  },
+  DiscountActive: {
+    type: String,
+    required: true,
+  },
+  DiscountPercentage: {
+    type: String,
+    required: false,
+  },
   ProductAdmin: {
     type: String,
     required: true,
@@ -41,10 +60,12 @@ const productSchema = new Schema({
     type: Date,
     default: Date.now,
   },
-  updatedAt:{
+  updatedAt: {
     type: Date,
     default: Date.now,
-  }
+  },
+}, {
+  timestamps: true,
 });
 
 const ProductModel = db.model("Product", productSchema);

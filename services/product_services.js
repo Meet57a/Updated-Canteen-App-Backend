@@ -3,42 +3,37 @@ const ProductModel = require("../model/product_model");
 const jwt = require("jsonwebtoken");
 const S3 = require("../config/s3-config");
 const { PutObjectCommand } = require("@aws-sdk/client-s3");
-const OrderProductModel = require('../model/order_product_model'); 
+const OrderProductModel = require('../model/order_product_model');
 
 class ProductServices {
 
   static async addProduct(
-    ProductName,
-    ProductPrice,
-    ProductDescription,
-    ProductQuantity,
-    ProductCategory,
-    TypeOfFood,
-    ProductAdmin,
-    res,
-    image,
-    mimeType
+    body, res, admin
   ) {
     try {
       const addIngProduct = ProductModel({
-        ProductName,
-        ProductPrice,
-        ProductDescription,
-        ProductQuantity,
-        ProductCategory,
-        TypeOfFood,
-        ProductAdmin,
-        updatedAt: null,
+        ProductName: body.product_name,
+        ProductPrice: body.product_price,
+        ProductQuantity: body.product_quantity,
+        ProductCategory: body.product_category,
+        ProductSubCategory: body.sub_category,
+        PriorityOfFood: body.priority_of_food,
+        ProductDescription: body.product_description,
+        ProductStock: body.product_stock,
+        StatusAvailable: body.status_available,
+        DiscountActive: body.discount_active,
+        DiscountPercentage: body.discount_percentage,
+        ProductAdmin: admin.Fullname,
       });
 
       const product = await addIngProduct.save();
-      const productID = product._id.toString();
+      const productID = product.ProductId.toString();
 
       const command = new PutObjectCommand({
         Bucket: "mu-canteen",
-        Body: image,
-        ContentType: mimeType,
-        ContentLength: image.length,
+        Body: body.product_image,
+        ContentType: body.mimeType,
+        ContentLength: body.product_image.length,
         Key: productID,
       });
 
@@ -46,11 +41,11 @@ class ProductServices {
         await S3.send(command);
       } catch (err) {
         ProductModel.findByIdAndDelete({ _id: productID });
-        res.status(401).send({ status: false, message: "Image Not Upload" })
+        res.status(401).send({ status: false, message: "Image Not Upload." })
         console.log("Error", err);
       }
-      res.status(200).send({ status: true, message: "Success." });
-      return true;
+      res.status(200).send({ status: true, message: "Product Successfully Added." });
+
     } catch (error) {
       console.log(error);
     }
@@ -90,12 +85,12 @@ class ProductServices {
   static async orderProduct(body, user, productId) {
 
     const product = await ProductModel.findById({ _id: productId });
-    
+
     const dateTime = body.DateTime.split(" ");
     const date = dateTime[0];
     const time = dateTime[1];
 
-    
+
     try {
       const orderProduct = OrderProductModel({
         ProductName: product.ProductName,
@@ -108,7 +103,7 @@ class ProductServices {
         UserAddress: body.Address,
         UserEmail: user.Email,
         UserPhone: user.MobileNo,
-        OrderStatus: "Pending", 
+        OrderStatus: "Pending",
         OrderPayment: body.Payment,
         OrderDate: date,
         OrderTime: time,

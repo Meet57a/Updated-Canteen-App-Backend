@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 class AuthService {
   static async userCheck(Email, MobileNo) {
     try {
-      console.log(MobileNo);
+
       const mobileNo = "+91" + MobileNo;
       const user = await UserModel.findOne({ Email: Email });
       const userNumber = await UserModel.findOne({ MobileNo: mobileNo });
@@ -53,23 +53,21 @@ class AuthService {
       }
       if (isCompare && (user.Role == "isUser" || user.Role == "isVendor")) {
         const tokenData = {
-          _id: user._id,
+          _id: user.userId,
+        };
+        
+        const token = jwt.sign(tokenData, process.env.JWT_SECRET);
+        const data = {
           Email: user.Email,
           Fullname: user.Fullname,
           MobileNo: user.MobileNo,
           Role: user.Role,
-        };
-        console.log(process.env.JWT_SECRET);
-        const token = jwt.sign(
-
-          tokenData,
-
-          process.env.JWT_SECRET || "adfafafaf",
-
-        );
+          Token : token,
+          UserId : user.userId,
+        }
         return res
           .status(200)
-          .json({ status: true, message: "Login successfully.", token: token });
+          .json({ status: true, message: "Login successfully.",  data: data });
       }
     } catch (error) {
       console.log(error);
