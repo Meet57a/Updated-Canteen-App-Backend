@@ -12,6 +12,7 @@ class ProductServices {
   ) {
     try {
       const addIngProduct = ProductModel({
+        
         ProductName: body.product_name,
         ProductPrice: body.product_price,
         ProductQuantity: body.product_quantity,
@@ -20,12 +21,13 @@ class ProductServices {
         PriorityOfFood: body.priority_of_food,
         ProductDescription: body.product_description,
         ProductStock: body.product_stock,
+        ProductMenu: body.product_menu,
         StatusAvailable: body.status_available,
         DiscountActive: body.discount_active,
         DiscountPercentage: body.discount_percentage,
         ProductAdmin: admin.Fullname,
-      });
-
+      }); 
+ 
       const product = await addIngProduct.save();
       const productID = product.ProductId.toString();
 

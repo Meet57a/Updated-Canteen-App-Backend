@@ -10,10 +10,10 @@ exports.addProductController = async (req, res) => {
     if (req.body == null) {
       return res.status(400).json({ message: "Invalid body" })
     }
- 
+
     const vendor = await CheckVendor.checkVendor(token);
     if (vendor && vendor.Role === "isVendor") {
-      let passProduct = await ProductServices.addProduct(req.body,res,vendor);
+      let passProduct = await ProductServices.addProduct(req.body, res, vendor);
     } else {
       console.log("Unauthorized");
     }
@@ -27,18 +27,19 @@ exports.addProductController = async (req, res) => {
 exports.getProducts = async (req, res) => {
   try {
     const products = await ProductModel.find({});
-    return res.status(200).json({ status: true, data: products })
+console.log("fesdsdsd");
+    return res.status(200).json({ status: true, message: "Successfull.", data: products })
   } catch (error) {
     console.log(error);
   }
-}
+} 
 
 exports.updateProductController = async (req, res) => {
   try {
     const id = req.params.id;
     const token = req.headers.authorization;
     const vendor = await CheckVendor.checkVendor(token);
-
+ 
     if (req.body == null) {
       return res.status(400).json({ message: "Invalid body" })
     }

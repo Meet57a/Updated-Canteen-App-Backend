@@ -40,6 +40,10 @@ const productSchema = new Schema({
     type: String,
     required: true,
   },
+  ProductMenu:{
+    type: String,
+    required: true,
+  },
   StatusAvailable: {
     type: String,
     required: true,
@@ -56,14 +60,7 @@ const productSchema = new Schema({
     type: String,
     required: true,
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
+
 }, {
   timestamps: true,
 });
