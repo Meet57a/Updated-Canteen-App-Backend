@@ -53,18 +53,23 @@ class ProductServices {
     }
   }
 
-  static async updateProduct(id, body, updateProductAdmin) {
+  static async updateProduct(id, body, admin) {
     try {
-      const updatedProduct = await ProductModel.findOneAndUpdate({ _id: id }, {
+      const updatedProduct = await ProductModel.findOneAndUpdate({ ProductId: id }, {
         $set: {
-          ProductName: body.ProductName,
-          ProductPrice: body.ProductPrice,
-          ProductDescription: body.ProductDescription,
-          ProductQuantity: body.ProductQuantity,
-          ProductCategory: body.ProductCategory,
-          TypeOfFood: body.TypeOfFood,
-          ProductAdmin: updateProductAdmin,
-          updatedAt: Date.now(),
+          ProductName: body.product_name,
+          ProductPrice: body.product_price,
+          ProductQuantity: body.product_quantity,
+          ProductCategory: body.product_category,
+          ProductSubCategory: body.sub_category,
+          PriorityOfFood: body.priority_of_food,
+          ProductDescription: body.product_description,
+          ProductStock: body.product_stock,
+          ProductMenu: body.product_menu,
+          StatusAvailable: body.status_available,
+          DiscountActive: body.discount_active,
+          DiscountPercentage: body.discount_percentage,
+          ProductAdmin: admin.Fullname,
         }
       }, { new: true });
 
@@ -77,7 +82,7 @@ class ProductServices {
 
   static async removeProduct(id) {
     try {
-      const deletedProduct = await ProductModel.findByIdAndDelete({ _id: id });
+      const deletedProduct = await ProductModel.findOneAndDelete({ ProductId: id });
       return deletedProduct;
     } catch (error) {
       console.log(error);
