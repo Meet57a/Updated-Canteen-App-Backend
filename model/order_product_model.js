@@ -4,9 +4,17 @@ const db = require("../config/db");
 const { Schema } = mongoose;
 
 const orderProductSchema = new Schema({
-    ObjectId: {
+    OrderId: {
         type: Schema.Types.ObjectId,
         auto: true,
+    },
+    ProductId: {
+        type: Schema.Types.ObjectId,
+        required: true,
+    },
+    UserId: {
+        type: String,
+        required: true,
     },
     ProductName: {
         type: String,
@@ -16,20 +24,8 @@ const orderProductSchema = new Schema({
         type: Number,
         required: true,
     },
-    ProductDescription: {
-        type: String,
-        required: true,
-    },
     OrderQuantity: {
         type: Number,
-        required: true,
-    },
-    ProductCategory: {
-        type: String,
-        required: true,
-    },
-    TypeOfFood: {
-        type: String,
         required: true,
     },
     UserFullName: {
@@ -48,6 +44,18 @@ const orderProductSchema = new Schema({
         type: String,
         required: true,
     },
+    OrderDiliveryCharge: {
+        type: Number,
+        required: true,
+    },
+    OrderTax: {
+        type: Number,
+        required: true,
+    },
+    OrderDiscount: {
+        type: Number,
+        required: true,
+    },
     OrderStatus: {
         type: String,
         required: true,
@@ -56,28 +64,18 @@ const orderProductSchema = new Schema({
         type: String,
         required: true,
     },
-    OrderDate: {
-        type: Date,
-        required: true,
-    },
-    OrderTime: {
-        type: String,
-        required: true,
-    },
     OrderTotal: {
         type: Number,
         required: true,
     },
-
-    createdAt: {
-        type: Date,
-        default: Date.now,
+    OrderTimeRequired : {
+        type : String,
+        required : false,
     },
-    updatedAt: {
-        type: Date,
-        default: null,
-    },
-});
+}, {
+    timestamps: true,
+},
+);
 
 const OrderProductModel = db.model("OrderProduct", orderProductSchema);
 module.exports = OrderProductModel;

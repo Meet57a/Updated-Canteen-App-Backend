@@ -29,6 +29,7 @@ class AuthService {
         MobileNo: mobileNo,
         Email,
         Password,
+        Address : "",
         Role,
       });
       const createdUser = await createUser.save();
@@ -63,6 +64,7 @@ class AuthService {
           MobileNo: user.MobileNo,
           Role: user.Role,
           Token : token,
+          Address: user.Address,
           UserId : user.userId,
         }
         return res

@@ -23,10 +23,9 @@ exports.checkUser = async (token) => {
     const check = jwt.verify(token, process.env.JWT_SECRET);
     const decodedToken = jwt.decode(token);
     if (check) {
-      const email = decodedToken["Email"];
-      const role = decodedToken["Role"];
+      const id = decodedToken['_id'];
 
-      return await UserModel.findOne({ Email: email });
+      return await UserModel.findOne({ userId :id });
     }
   } catch (error) {
     console.log(error);
