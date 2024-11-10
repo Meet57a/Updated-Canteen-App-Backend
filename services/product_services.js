@@ -2,11 +2,14 @@ const UserModel = require("../model/user");
 const ProductModel = require("../model/product_model");
 const CategoryModel = require("../model/category_model");
 const SubCategoryModel = require("../model/sub_category_model");
+const PosterModel = require("../model/poster_model");
+const CouponModel = require("../model/coupon");
+
 
 
 const jwt = require("jsonwebtoken");
 const S3 = require("../config/s3-config");
-const { PutObjectCommand } = require("@aws-sdk/client-s3");
+const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const OrderProductModel = require('../model/order_product_model');
 
 class ProductServices {
@@ -84,9 +87,6 @@ class ProductServices {
         console.log("Error", err);
       }
       res.status(200).send({ status: true, message: "Category Successfully Added." });
-
-
-
 
     } catch (error) {
       console.log(error);
@@ -193,19 +193,174 @@ class ProductServices {
     }
   }
 
-  static async getOrderdProducts(user){
+  static async getOrderdProducts(user) {
     try {
-      const orderProduct = await OrderProductModel.find({ UserId: user.userId });
-      return orderProduct;
+      if (user.Role == "isVendor") {
+        const orderProduct = await OrderProductModel.find({});
+        return orderProduct;
+      } else if (user.Role == "isUser") {
+        const orderProduct = await OrderProductModel.find({ UserId: user.userId });
+        return orderProduct;
+      }
     } catch (error) {
       console.log(error);
     }
   }
 
-  static async deleteProductFromOrders(orderId){
+  static async deleteProductFromOrders(orderId) {
     try {
-      const deletedProduct = await OrderProductModel.findOneAndDelete({ OrderId : orderId });
+      const deletedProduct = await OrderProductModel.findOneAndDelete({ OrderId: orderId });
       return deletedProduct;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async updateOrder(admin, body, orderId) {
+    try {
+      const order = await OrderProductModel.findOneAndUpdate({ OrderId: body.orderId }, {
+        $set: {
+          OrderTimeRequired: body.order_time_required,
+          OrderStatus: body.order_status,
+        },
+      });
+      return order;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async addPosters(body, admin, res) {
+    try {
+      console.log(body);
+      const addPoster = PosterModel({
+        PosterTitle: body.PosterTitle,
+        PosterDescription: body.PosterDescription,
+        PosterAdmin: admin.Fullname,
+        PosterStatus: body.PosterStatus,
+        PosterPriority: body.poster_priority,
+      });
+
+      const poster = await addPoster.save();
+      const posterId = poster.PosterId.toString();
+
+      const command = new PutObjectCommand({
+        Bucket: "mu-canteen",
+        Body: body.image,
+        ContentType: body.mimeType,
+        ContentLength: body.image.length,
+        Key: posterId,
+      });
+
+      try {
+        await S3.send(command);
+      } catch (err) {
+        PosterModel.findOneAndDelete({ PosterId: posterId });
+        res.status(401).send({ status: false, message: "Image Not Upload." })
+        console.log("Error", err);
+      }
+      res.status(200).send({ status: true, message: "Poster Successfully Added." });
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async updatePosters(body, admin, posterId) {
+    try {
+
+      if (body.image != null) {
+        const deleteAndUpdate = new DeleteObjectCommand({
+          Bucket: "mu-canteen",
+          Key: posterId.toString(),
+        });
+        const res = await S3.send(deleteAndUpdate);
+
+        if (res) {
+          const command = new PutObjectCommand({
+            Bucket: "mu-canteen",
+            Body: body.image,
+            ContentType: body.mimeType,
+            ContentLength: body.image.length,
+            Key: posterId,
+          });
+          await S3.send(command);
+        }
+      }
+
+
+
+      const poster = await PosterModel.findOneAndUpdate({
+        PosterId
+          : posterId
+      }, {
+        $set: {
+          PosterTitle: body.PosterTitle,
+          PosterDescription: body.PosterDescription,
+          PosterAdmin: admin.Fullname,
+          PosterStatus: body.PosterStatus,
+          PosterPriority: body.poster_priority,
+        }
+      }, { new: true });
+
+      return poster;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async deletePoster(posterId) {
+    try {
+      const deletedPoster = await PosterModel.findOneAndDelete({ PosterId: posterId });
+      return deletedPoster;
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async addCoupon(body, admin) {
+    try {
+      const coupon = await CouponModel({
+        CouponTitle: body.CouponTitle,
+        DiscountPercentage: body.DiscountPercentage,
+        CouponDesc: body.CouponDesc,
+        Admin: admin.Fullname,
+        CouponCode: body.CouponCode,
+        Status: body.CouponStatus,
+        AppliedToWhich: body.AppliedToCateId
+      });
+      return await coupon.save();
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async updateCoupon(body, admin, couponId) {
+    try {
+      const updateCoupon = await CouponModel.findOneAndUpdate({ CouponId: couponId }, {
+        $set: {
+          CouponTitle: body.CouponTitle,
+          DiscountPercentage: body.DiscountPercentage,
+          CouponDesc: body.CouponDesc,
+          Admin: admin.Fullname,
+          CouponCode: body.CouponCode,
+          Status: body.CouponStatus,
+          AppliedToWhich: body.AppliedToCateId
+
+        }
+      });
+      return updateCoupon;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  static async deleteCoupon(couponId) {
+    try {
+      const deletedCoupon = await CouponModel.findOneAndDelete({ CouponId: couponId });
+      return deletedCoupon;
     } catch (error) {
       console.log(error);
     }

@@ -2,6 +2,9 @@ const ProductServices = require("../services/product_services");
 const CheckVendor = require("../config/check_vendor");
 const ProductModel = require("../model/product_model");
 const CategoryModel = require("../model/category_model");
+const PosterModel = require("../model/poster_model");
+const CouponModel = require("../model/coupon");
+
 
 const SubCategoryModel = require("../model/sub_category_model");
 
@@ -37,11 +40,15 @@ exports.getProducts = async (req, res) => {
     const products = await ProductModel.find({});
     const category = await CategoryModel.find({});
     const subCategory = await SubCategoryModel.find({});
+    const posters = await PosterModel.find({});
+    const coupons = await CouponModel.find({});
 
     const data = {
       products,
       category,
       subCategory,
+      posters,
+      coupons
     }
 
     return res.status(200).json({ status: true, message: "Successfull.", data: data })
@@ -156,6 +163,22 @@ exports.addCategorysController = async (req, res) => {
   }
 }
 
+exports.editCategoryController = async (req,res) => {
+  try {
+    const token = req.headers.authorization;
+    const id = req.params.id;
+    const vendor = await CheckVendor.checkVendor(token);
+    if (vendor && vendor.Role === "isVendor") {
+      let passCate = await ProductServices.editCategory(id, req.body, vendor, res);
+    } else {
+      return res.status(401).json({ status: false, message: "Unauthorized" })
+    }
+  } catch (error) {
+    console.log(error);
+  }
+
+}
+
 exports.addSubCategory = async (req, res) => {
   try {
     const token = req.headers.authorization;
@@ -179,7 +202,7 @@ exports.getOrderProductsController = async (req, res) => {
     const token = req.headers.authorization;
 
     const user = await CheckVendor.checkUser(token);
-    if (user && user.Role === "isUser") {
+    if (user && (user.Role === "isUser" || user.Role === "isVendor")) {
       const order = await ProductServices.getOrderdProducts(user);
       if (order) {
         return res.status(200).json({ status: true, message: "Successfull.", data: order })
@@ -198,7 +221,7 @@ exports.deleteProductFromOrdersController = async (req, res) => {
     const token = req.headers.authorization;
     const id = req.params.orderId;
     const user = await CheckVendor.checkUser(token);
-   
+
     if (user && user.Role === "isUser") {
       const deleteOrder = await ProductServices.deleteProductFromOrders(id);
       if (deleteOrder) {
@@ -206,6 +229,153 @@ exports.deleteProductFromOrdersController = async (req, res) => {
       } else {
         return res.status(400).json({ status: false, message: "Order not found" })
       }
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.updateOrder = async (req, res) => {
+  try {
+    const token = await req.headers.authorization;
+    const orderId = await req.params.orderId;
+    const admin = await CheckVendor.checkVendor(token);
+
+    if (admin && admin.Role == "isVendor") {
+      const orderUpdate = await ProductServices.updateOrder(admin, req.body, orderId);
+      if (orderUpdate) {
+        return res.status(200).json({ status: true, message: "Order Updated." });
+      } else {
+        return res.status(400).json({ status: false, message: "Order not updated." });
+      }
+    } else {
+      return res.status(400).json({ status: false, message: "You are not admin." });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.addPostersController = async (req, res) => {
+  try {
+    const token = await req.headers.authorization;
+    const admin = await CheckVendor.checkVendor(token);
+
+    if (admin && admin.Role == "isVendor") {
+      const poster = await ProductServices.addPosters(req.body, admin, res);
+      if (poster) {
+        return res.status(200).json({ status: true, message: "Poster added." });
+      } else {
+        return res.status(400).json({ status: false, message: "Poster not added." });
+      }
+
+    } else {
+      return res.status(400).json({ status: false, message: "You are not admin." });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.updatePostersController = async (req, res) => {
+  try {
+    const token = await req.headers.authorization;
+    const admin = await CheckVendor.checkVendor(token);
+    const posterId = await req.params.posterId;
+
+    if (admin && admin.Role == "isVendor") {
+      const poster = await ProductServices.updatePosters(req.body, admin, posterId);
+      if (poster) {
+        return res.status(200).json({ status: true, message: "Poster updated." });
+      } else {
+        return res.status(400).json({ status: false, message: "Poster not updated." });
+      }
+    } else {
+      return res.status(400).json({ status: false, message: "You are not admin." });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
+exports.deletePostersController = async (req, res) => { 
+  try {
+    const token = await req.headers.authorization;
+    const admin = await CheckVendor.checkVendor(token);
+    const posterId = await req.params.posterId;
+
+    if (admin && admin.Role == "isVendor") {
+      const poster = await ProductServices.deletePoster( posterId);
+      if (poster) {
+        return res.status(200).json({ status: true, message: "Poster deleted." });
+      } else {
+        return res.status(400).json({ status: false, message: "Poster not deleted." });
+      }
+    } else {
+      return res.status(400).json({ status: false, message: "You are not admin." });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.addCouponController = async (req, res) => {
+  try {
+    const token = await req.headers.authorization;
+    const admin = await CheckVendor.checkVendor(token);
+
+    if (admin && admin.Role == "isVendor") {
+      const poster = await ProductServices.addCoupon(req.body, admin);
+      if (poster) {
+        return res.status(200).json({ status: true, message: "Coupon added." });
+      } else {
+        return res.status(400).json({ status: false, message: "Coupon not added." });
+      }
+    } else {
+      return res.status(400).json({ status: false, message: "You are not admin." });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.updateCouponController = async (req, res) => {
+  try {
+    const token = await req.headers.authorization;
+    const admin = await CheckVendor.checkVendor(token);
+    const couponId = await req.params.couponId;
+
+    if (admin && admin.Role == "isVendor") {
+      const poster = await ProductServices.updateCoupon(req.body, admin, couponId);
+      if (poster) {
+        return res.status(200).json({ status: true, message: "Coupon updated." });
+      } else {
+        return res.status(400).json({ status: false, message: "Coupon not updated." });
+      }
+    } else {
+      return res.status(400).json({ status: false, message: "You are not admin." });
+    }
+  } catch (error) {
+
+  }
+}
+
+exports.deleteCouponController = async (req, res) => {
+  try {
+    const token = await req.headers.authorization;
+    const admin = await CheckVendor.checkVendor(token);
+    const couponId = await req.params.couponId;
+
+    if (admin && admin.Role == "isVendor") {
+      const poster = await ProductServices.deleteCoupon(couponId);
+      if (poster) {
+        return res.status(200).json({ status: true, message: "Coupon deleted." });
+      } else {
+        return res.status(400).json({ status: false, message: "Coupon not deleted." });
+      }
+    } else {
+      return res.status(400).json({ status: false, message: "You are not admin." });
     }
   } catch (error) {
     console.log(error);
